@@ -141,6 +141,8 @@ function initContactForm() {
   const btn = document.getElementById("form-submit-btn");
   if (!btn) return;
   const defaultText = btn.textContent;
+  const localLiveServer = ["localhost:5500", "127.0.0.1:5500"].includes(window.location.host);
+  const apiUrl = window.CONTACT_API_URL || (localLiveServer ? "http://127.0.0.1:3000/api/contact" : "/api/contact");
 
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -166,7 +168,7 @@ function initContactForm() {
     btn.disabled = true;
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
