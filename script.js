@@ -1,8 +1,8 @@
 /* ============================================================
-   Aayvimo Technologies â€” script.js
+   Aayvimo Technologies — script.js
    ============================================================ */
 
-/* â”€â”€ Navbar Scroll Effect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Navbar Scroll Effect ────────────────────────────── */
 function initNavbar() {
   const nav = document.getElementById("navbar");
   window.addEventListener("scroll", () => {
@@ -14,7 +14,7 @@ function initNavbar() {
   }, { passive: true });
 }
 
-/* â”€â”€ Mobile Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Mobile Menu ────────────────────────────── */
 function initMobileMenu() {
   const ham = document.getElementById("hamburger");
   const menu = document.getElementById("mobile-menu");
@@ -33,7 +33,7 @@ function closeMobileMenu() {
   if (menu) menu.classList.remove("open");
 }
 
-/* â”€â”€ Hero Particles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Hero Particles ────────────────────────────── */
 function initParticles() {
   const container = document.getElementById("hero-particles");
   if (!container) return;
@@ -67,7 +67,7 @@ function initParticles() {
   }
 }
 
-/* â”€â”€ Counter Animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Counter Animation ────────────────────────────── */
 function animateCounter(el) {
   const target = parseInt(el.dataset.target, 10);
   const suffix = el.dataset.suffix || "";
@@ -100,7 +100,7 @@ function initCounters() {
   obs.observe(heroSection);
 }
 
-/* â”€â”€ Scroll Reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Scroll Reveal ────────────────────────────── */
 function initScrollReveal() {
   const elements = document.querySelectorAll(".reveal");
   const obs = new IntersectionObserver((entries) => {
@@ -115,7 +115,7 @@ function initScrollReveal() {
   elements.forEach((el) => obs.observe(el));
 }
 
-/* â”€â”€ Active Nav Link on Scroll â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Active Nav Link on Scroll ────────────────────────────── */
 function initActiveNavLink() {
   const sections = document.querySelectorAll("section[id]");
   const navLinks = document.querySelectorAll(".nav-links a");
@@ -136,7 +136,7 @@ function initActiveNavLink() {
   sections.forEach((sec) => obs.observe(sec));
 }
 
-/* â”€â”€ Contact Form Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Contact Form Submit ────────────────────────────── */
 function initContactForm() {
   const btn = document.getElementById("form-submit-btn");
   if (!btn) return;
@@ -144,25 +144,81 @@ function initContactForm() {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     const name = document.getElementById("form-name").value.trim();
+    const company = document.getElementById("form-company").value.trim();
     const email = document.getElementById("form-email").value.trim();
+    const phone = document.getElementById("form-phone").value.trim();
+    const service = document.getElementById("form-service").value.trim();
+    const message = document.getElementById("form-message").value.trim();
 
     if (!name || !email) {
-      btn.textContent = "âš ï¸  Please fill in your name and email.";
+      btn.textContent = "⚠️ Please fill in your name and email.";
       btn.style.background = "linear-gradient(135deg, #F97316, #d96010)";
       setTimeout(() => {
-        btn.textContent = "ðŸš€ Send Message & Get a Free Quote";
+        btn.textContent = "🚀 Send Message & Get a Free Quote";
         btn.style.background = "";
       }, 2500);
       return;
     }
 
-    btn.textContent = "âœ… Message Sent! We'll be in touch within 24 hrs.";
-    btn.style.background = "linear-gradient(135deg, #22C55E, #16a34a)";
+    const originalText = btn.textContent;
+    btn.textContent = "⏳ Sending...";
     btn.disabled = true;
+
+    const emailBody = `
+      <h3>New Contact Form Submission</h3>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Company:</strong> ${company || "N/A"}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+      <p><strong>Service Needed:</strong> ${service || "N/A"}</p>
+      <p><strong>Message:</strong><br/>${message || "N/A"}</p>
+    `;
+
+    Email.send({
+      Host: "smtp.gmail.com",
+      Username: "aayvimotechnologies@gmail.com",
+      Password: "vyjb ldiu gwyq doaz",
+      To: email, // Sends to you and a copy to the user
+      From: "aayvimotechnologies@gmail.com",
+      Subject: "New Contact Form Submission from " + name,
+      Body: emailBody
+    }).then(
+      response => {
+        if (response === 'OK') {
+          btn.textContent = "✅ Message Sent! We'll be in touch within 24 hrs.";
+          btn.style.background = "linear-gradient(135deg, #22C55E, #16a34a)";
+
+          document.getElementById("form-name").value = '';
+          document.getElementById("form-company").value = '';
+          document.getElementById("form-email").value = '';
+          document.getElementById("form-phone").value = '';
+          document.getElementById("form-service").value = '';
+          document.getElementById("form-message").value = '';
+        } else {
+          console.error("Email send failed:", response);
+          btn.textContent = "❌ Failed to send message. Please try again.";
+          btn.style.background = "linear-gradient(135deg, #EF4444, #dc2626)";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = "";
+            btn.disabled = false;
+          }, 3000);
+        }
+      }
+    ).catch(error => {
+      console.error("Email send error:", error);
+      btn.textContent = "❌ Error sending message.";
+      btn.style.background = "linear-gradient(135deg, #EF4444, #dc2626)";
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = "";
+        btn.disabled = false;
+      }, 3000);
+    });
   });
 }
 
-/* â”€â”€ Smooth Scroll for anchor links â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Smooth Scroll for anchor links ────────────────────────────── */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", (e) => {
@@ -176,7 +232,7 @@ function initSmoothScroll() {
   });
 }
 
-/* â”€â”€ Testimonials Pause on Hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Testimonials Pause on Hover ────────────────────────────── */
 function initTestimonialsTrack() {
   const track = document.getElementById("testimonials-track");
   if (!track) return;
@@ -189,14 +245,14 @@ function initTestimonialsTrack() {
   });
 }
 
-/* â”€â”€ Workflow Step Hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Workflow Step Hover ────────────────────────────── */
 function initWorkflowSteps() {
   document.querySelectorAll(".wf-step").forEach((step, index) => {
     step.style.transitionDelay = (index * 0.08) + "s";
   });
 }
 
-/* â”€â”€ Init All â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Init All ────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
 
   initNavbar();
