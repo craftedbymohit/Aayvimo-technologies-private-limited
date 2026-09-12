@@ -4,3 +4,8 @@ node_modules
 .env
 capture_ss.js
 server.js
+
+# Internal planning docs — never deploy/crawl
+KEYWORD_STRATEGY.md
+WEBSITE_GROWTH_PLAN.md
+PARTIALS_REFERENCE.md

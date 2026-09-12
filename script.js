@@ -151,19 +151,37 @@ function initContactForm() {
     const email = document.getElementById("form-email").value.trim();
     const phone = document.getElementById("form-phone").value.trim();
     const service = document.getElementById("form-service").value.trim();
+    const budget = (document.getElementById("form-budget") || {}).value || "";
+    const timeline = (document.getElementById("form-timeline") || {}).value || "";
+    const honeypot = (document.getElementById("form-website") || {}).value || "";
     const message = document.getElementById("form-message").value.trim();
+    const statusEl = document.getElementById("form-status");
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    const setStatus = (text, type) => {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.className = "form-status" + (type ? " " + type : "");
+    };
+
+    // Honeypot: real users never fill this. Silently succeed to not tip off bots.
+    if (honeypot) {
+      setStatus("Thanks! Your message has been sent.", "ok");
+      return;
+    }
 
     if (!name || !email) {
-      btn.textContent = "Please fill in your name and email.";
-      btn.style.background = "linear-gradient(135deg, #F97316, #d96010)";
-      setTimeout(() => {
-        btn.textContent = defaultText;
-        btn.style.background = "";
-      }, 2500);
+      setStatus("Please fill in your name and email.", "err");
+      return;
+    }
+    if (!emailValid) {
+      setStatus("Please enter a valid email address.", "err");
       return;
     }
 
     const originalText = btn.textContent;
+    setStatus("", "");
     btn.textContent = "Sending...";
     btn.disabled = true;
 
@@ -179,6 +197,8 @@ function initContactForm() {
           email,
           phone,
           service,
+          budget,
+          timeline,
           message
         })
       });
@@ -191,22 +211,37 @@ function initContactForm() {
       }
 
       if (response.ok && data.success) {
-        btn.textContent = "Message Sent! We'll be in touch within 24 hrs.";
+        setStatus("Message sent! We'll be in touch within 24 hours.", "ok");
+        btn.textContent = "Message Sent! ✓";
         btn.style.background = "linear-gradient(135deg, #22C55E, #16a34a)";
+
+        // GA4 conversion event (safe no-op if gtag isn't loaded yet)
+        if (typeof window.gtag === "function") {
+          window.gtag("event", "generate_lead", {
+            event_category: "contact",
+            service: service || "unspecified",
+            budget: budget || "unspecified",
+            timeline: timeline || "unspecified"
+          });
+        }
 
         document.getElementById("form-name").value = "";
         document.getElementById("form-company").value = "";
         document.getElementById("form-email").value = "";
         document.getElementById("form-phone").value = "";
         document.getElementById("form-service").value = "";
+        if (document.getElementById("form-budget")) document.getElementById("form-budget").value = "";
+        if (document.getElementById("form-timeline")) document.getElementById("form-timeline").value = "";
         document.getElementById("form-message").value = "";
       } else {
-        btn.textContent = data.message || "Failed to send message. Please try again.";
+        setStatus(data.message || "Failed to send message. Please try again.", "err");
+        btn.textContent = "Failed — try again";
         btn.style.background = "linear-gradient(135deg, #EF4444, #dc2626)";
         console.error("Contact API failure:", data);
       }
     } catch (error) {
       console.error("Email send error:", error);
+      setStatus("Network error. Please try again or WhatsApp us.", "err");
       btn.textContent = "Error sending message.";
       btn.style.background = "linear-gradient(135deg, #EF4444, #dc2626)";
     } finally {
@@ -253,6 +288,21 @@ function initWorkflowSteps() {
   });
 }
 
+/* ── Analytics: track phone & WhatsApp clicks (GA4) ─────────────── */
+function initClickTracking() {
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a");
+    if (!link || typeof window.gtag !== "function") return;
+    const href = link.getAttribute("href") || "";
+
+    if (href.startsWith("tel:")) {
+      window.gtag("event", "phone_click", { event_category: "contact", value: href });
+    } else if (href.includes("wa.me") || href.includes("api.whatsapp.com")) {
+      window.gtag("event", "whatsapp_click", { event_category: "contact", value: href });
+    }
+  });
+}
+
 /* ── Init All ────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -266,4 +316,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initSmoothScroll();
   initTestimonialsTrack();
   initWorkflowSteps();
+  initClickTracking();
 });

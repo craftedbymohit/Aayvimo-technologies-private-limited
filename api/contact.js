@@ -62,7 +62,15 @@ module.exports = async (req, res) => {
   const email = (body.email || "").trim();
   const phone = (body.phone || "").trim();
   const service = (body.service || "").trim();
+  const budget = (body.budget || "").trim();
+  const timeline = (body.timeline || "").trim();
   const message = (body.message || "").trim();
+  const honeypot = (body.website || "").trim();
+
+  // Honeypot: silently accept to avoid tipping off bots, but do not email.
+  if (honeypot) {
+    return res.status(200).json({ success: true });
+  }
 
   if (!name || !email) {
     return res.status(400).json({
@@ -86,6 +94,8 @@ module.exports = async (req, res) => {
     <p><strong>Email:</strong> ${escapeHtml(email)}</p>
     <p><strong>Phone:</strong> ${escapeHtml(phone || "N/A")}</p>
     <p><strong>Service Needed:</strong> ${escapeHtml(service || "N/A")}</p>
+    <p><strong>Budget:</strong> ${escapeHtml(budget || "N/A")}</p>
+    <p><strong>Timeline:</strong> ${escapeHtml(timeline || "N/A")}</p>
     <p><strong>Message:</strong><br>${escapeHtml(message || "N/A").replace(/\n/g, "<br>")}</p>
   `;
 
@@ -96,6 +106,8 @@ module.exports = async (req, res) => {
     `Email: ${email}`,
     `Phone: ${phone || "N/A"}`,
     `Service Needed: ${service || "N/A"}`,
+    `Budget: ${budget || "N/A"}`,
+    `Timeline: ${timeline || "N/A"}`,
     `Message: ${message || "N/A"}`
   ].join("\n");
 

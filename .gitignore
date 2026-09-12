@@ -1,2 +1,9 @@
 .env
+node_modules/
+.kiro/
 npm-debug.log*
+
+# Internal planning docs — never publish
+KEYWORD_STRATEGY.md
+WEBSITE_GROWTH_PLAN.md
+PARTIALS_REFERENCE.md
