@@ -1,0 +1,12 @@
+# robots.txt — Aayvimo Technologies
+# Domain confirmed: https://www.aayvimotechnologies.com
+
+User-agent: *
+Allow: /
+
+# Block build/config noise from crawlers (harmless if absent)
+Disallow: /api/
+Disallow: /node_modules/
+Disallow: /.kiro/
+
+Sitemap: https://www.aayvimotechnologies.com/sitemap.xml

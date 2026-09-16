@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
@@ -69,7 +70,15 @@ app.post("/api/contact", async (req, res) => {
   const email = (req.body.email || "").trim();
   const phone = (req.body.phone || "").trim();
   const service = (req.body.service || "").trim();
+  const budget = (req.body.budget || "").trim();
+  const timeline = (req.body.timeline || "").trim();
   const message = (req.body.message || "").trim();
+  const honeypot = (req.body.website || "").trim();
+
+  // Honeypot: silently accept to avoid tipping off bots, but do not email.
+  if (honeypot) {
+    return res.json({ success: true });
+  }
 
   if (!name || !email) {
     return res.status(400).json({
@@ -93,6 +102,8 @@ app.post("/api/contact", async (req, res) => {
     <p><strong>Email:</strong> ${escapeHtml(email)}</p>
     <p><strong>Phone:</strong> ${escapeHtml(phone || "N/A")}</p>
     <p><strong>Service Needed:</strong> ${escapeHtml(service || "N/A")}</p>
+    <p><strong>Budget:</strong> ${escapeHtml(budget || "N/A")}</p>
+    <p><strong>Timeline:</strong> ${escapeHtml(timeline || "N/A")}</p>
     <p><strong>Message:</strong><br>${escapeHtml(message || "N/A").replace(/\n/g, "<br>")}</p>
   `;
 
@@ -103,6 +114,8 @@ app.post("/api/contact", async (req, res) => {
     `Email: ${email}`,
     `Phone: ${phone || "N/A"}`,
     `Service Needed: ${service || "N/A"}`,
+    `Budget: ${budget || "N/A"}`,
+    `Timeline: ${timeline || "N/A"}`,
     `Message: ${message || "N/A"}`
   ].join("\n");
 
@@ -127,9 +140,37 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname)));
+// Block internal planning/docs (*.md) from ever being served publicly.
+app.get(/\.md$/i, (req, res) => res.status(404).send("Not found"));
 
+// Serve static assets. `redirect: false` stops express.static from issuing a
+// 301 to add a trailing slash on directories, so our clean-URL handler below
+// can serve "/services/custom-software-development" directly.
+app.use(express.static(path.join(__dirname), { redirect: false }));
+
+// Clean-URL resolver: map "/some/path" to "/some/path/index.html" or
+// "/some/path.html" when those files exist. Enables SEO-friendly URLs for
+// the multi-page structure (e.g. /services/custom-software-development).
 app.get(/.*/, (req, res) => {
+  // Strip query string and normalize; block path traversal.
+  const urlPath = decodeURIComponent(req.path).replace(/\/+$/, "");
+  const safePath = path
+    .normalize(urlPath)
+    .replace(/^(\.\.[\/\\])+/, "");
+
+  const candidates = [
+    path.join(__dirname, safePath, "index.html"),
+    path.join(__dirname, safePath + ".html")
+  ];
+
+  for (const candidate of candidates) {
+    // Ensure the resolved file stays within the project directory.
+    if (candidate.startsWith(__dirname) && fs.existsSync(candidate)) {
+      return res.sendFile(candidate);
+    }
+  }
+
+  // Fallback: serve the homepage.
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
